@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Inventory Manager</title>
+    <link rel="stylesheet" href="./css/inventory.css">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>📦 Inventario IA</h1>
+            <p class="subtitle">Dímelo y yo lo anoto</p>
+        </header>
+
+        <main>
+            <!-- Voice/Text Input Section -->
+            <div class="input-card">
+                <div class="input-container">
+                    <input type="text" id="venta-input" placeholder="Ej: 'Vendí 2 sudaderas'...">
+                    <button id="btn-voz" class="mic-icon" aria-label="Activar voz">
+                        🎤
+                    </button>
+                    <button id="btn-enviar">Anotar</button>
+                </div>
+                <p id="status-msg" class="status-msg"></p>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="dashboard">
+                <h2>🔥 Lo Más Vendido</h2>
+                <div id="stats-container" class="stats-grid">
+                    <!-- Items will be injected here by JS -->
+                    <div class="empty-state">No hay ventas registradas hoy.</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="btn-reset" class="btn-secondary">🗑️ Borrar Todo</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="./java/inventory.js"></script>
+    <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('Service Worker registrado', reg))
+                    .catch(err => console.log('Error SW:', err));
+            });
+        }
+    </script>
+</body>
+
+</html>
