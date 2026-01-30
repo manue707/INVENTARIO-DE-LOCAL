@@ -66,16 +66,35 @@ async function migrateFromLocalStorage() {
 }
 
 // --- Core Logic: Text Parser ---
+// --- Core Logic: Text Parser ---
 function parseCommand(text) {
     text = text.toLowerCase();
-    const numberMatch = text.match(/(\d+)/);
-    if (!numberMatch) return null;
 
-    const quantity = parseInt(numberMatch[0]);
-    let cleanText = text.replace(quantity, '')
+    // 1. Detect explicit price first (e.g., "a 5000", "por 5000")
+    let explicitPrice = null;
+    const priceMatch = text.match(/(?:a|por|valen|cuestan)\s*\$?(\d+)/);
+
+    if (priceMatch) {
+        explicitPrice = parseInt(priceMatch[1]);
+        // Remove the price part from text to avoid confusion with quantity
+        text = text.replace(priceMatch[0], '');
+    }
+
+    // 2. Detect Quantity
+    let quantity = 1; // Default to 1 if no number found
+    const quantityMatch = text.match(/(\d+)/);
+
+    if (quantityMatch) {
+        quantity = parseInt(quantityMatch[0]);
+        text = text.replace(quantityMatch[0], ''); // Remove quantity
+    }
+
+    // 3. Cleanup to get Product Name
+    let cleanText = text
         .replace(/vend[ií]/g, '')
         .replace('venta', '')
         .replace(' de ', '')
+        .replace(/\s+/g, ' ') // Collapse multiple spaces
         .trim();
 
     if (cleanText.length < 2) return null;
@@ -84,7 +103,7 @@ function parseCommand(text) {
     if (product.endsWith('s')) product = product.slice(0, -1);
     if (product.endsWith('es')) product = product.slice(0, -2);
 
-    return { product, quantity };
+    return { product, quantity, explicitPrice };
 }
 
 // --- Action: Register Sale ---
@@ -92,32 +111,49 @@ async function registerSale(text) {
     const result = parseCommand(text);
 
     if (!result) {
-        showStatus("⚠️ No entendí. Intenta: 'Vendí 2 gorras'", "error");
+        showStatus("⚠️ No entendí. Intenta: 'Vendí 2 gorras' o '1 gorra a 5000'", "error");
         return;
     }
 
-    const { product, quantity } = result;
+    const { product, quantity, explicitPrice } = result;
 
     try {
         await db.transaction('rw', db.products, db.sales, async () => {
             // 1. Get or Create Product
             let item = await db.products.get(product);
 
+            // Determine price to use
+            let currentPrice = 0;
+            if (item) {
+                currentPrice = item.price;
+            }
+
+            // If user said a price, UPDATE/SET it immediately
+            if (explicitPrice !== null) {
+                currentPrice = explicitPrice;
+                // Save this new price for the future
+                if (item) {
+                    await db.products.update(product, { price: explicitPrice });
+                }
+            }
+
             if (!item) {
-                // New product, ask for price later or default to 0
-                item = { name: product, price: 0, total_sold: 0 };
+                // New product
+                item = { name: product, price: currentPrice, total_sold: 0 };
                 await db.products.add(item);
-                showStatus(`⚠️ Nuevo producto "${product}". Toca la tarjeta para poner precio.`, "info");
+                if (currentPrice === 0) {
+                    showStatus(`⚠️ Nuevo: "${product}". Toca la tarjeta para poner precio.`, "info");
+                }
             }
 
             // 2. Calculate Total
-            const saleTotal = item.price * quantity;
+            const saleTotal = currentPrice * quantity;
 
             // 3. Add to Sales History
             await db.sales.add({
                 product_name: product,
                 quantity: quantity,
-                price_at_sale: item.price,
+                price_at_sale: currentPrice,
                 total: saleTotal,
                 timestamp: new Date()
             });
@@ -129,7 +165,7 @@ async function registerSale(text) {
         });
 
         // 5. Update UI
-        showStatus(`✅ Venta registrada: ${quantity} ${product}`, "success");
+        showStatus(`✅ Venta: ${quantity} ${product} (${formatCurrency(explicitPrice || 0)})`, "success");
         inputField.value = '';
         renderDashboard();
         renderHistory();
