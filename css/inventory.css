@@ -161,7 +161,7 @@ button {
 #btn-enviar {
     background: var(--accent);
     color: #000;
-    padding: 0 24px;
+    padding: 0 15px;
     box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
 }
 
@@ -379,3 +379,4 @@ button {
     padding: 10px;
 
 }
+
