@@ -314,3 +314,61 @@ button {
         height: 50px;
     }
 }
+
+/* History & Account Styles */
+.history-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    margin-top: 20px;
+}
+
+.history-section h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+    color: var(--text-main);
+}
+
+.summary-card h3 {
+    font-size: 1.5rem;
+    margin: 10px 0 20px 0;
+    color: var(--accent);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+.sales-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sales-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.sales-list li:last-child {
+    border-bottom: none;
+}
+
+.sales-list li span:first-child {
+    display: flex;
+    gap: 8px;
+}
+
+.empty-log {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+    padding: 10px;
+}
