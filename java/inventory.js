@@ -149,9 +149,33 @@ async function updatePrice(productName) {
 
     if (newPrice !== null && !isNaN(newPrice)) {
         const priceVal = parseFloat(newPrice);
-        await db.products.update(productName, { price: priceVal });
-        showStatus(`💲 Precio actualizado: ${formatCurrency(priceVal)}`, "success");
-        renderDashboard(); // Re-render to update price display if we add it
+
+        await db.transaction('rw', db.products, db.sales, async () => {
+            // 1. Update Product Price
+            await db.products.update(productName, { price: priceVal });
+
+            // 2. Update TODAY'S sales for this product to reflect new price
+            // This fixes the issue where user adds sales first, then sets price, and total remains 0.
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            const todaysSales = await db.sales
+                .where('timestamp').above(now)
+                .filter(sale => sale.product_name === productName)
+                .toArray();
+
+            for (const sale of todaysSales) {
+                const newTotal = sale.quantity * priceVal;
+                await db.sales.update(sale.id, {
+                    price_at_sale: priceVal,
+                    total: newTotal
+                });
+            }
+        });
+
+        showStatus(`💲 Precio actualizado a ${formatCurrency(priceVal)}`, "success");
+        renderDashboard();
+        renderHistory(); // Refresh history immediately
     }
 }
 
