@@ -55,7 +55,7 @@ async function migrateFromLocalStorage() {
                         }
                     }
                 });
-                showStatus("📦 Datos migrados a la nueva base de datos", "success");
+                showStatus("Datos migrados a la nueva base de datos", "success");
             }
             // Clear old data to prevent re-migration
             localStorage.removeItem('myInventory');
@@ -65,7 +65,6 @@ async function migrateFromLocalStorage() {
     }
 }
 
-// --- Core Logic: Text Parser ---
 // --- Core Logic: Text Parser ---
 function parseCommand(text) {
     text = text.toLowerCase();
@@ -111,7 +110,7 @@ async function registerSale(text) {
     const result = parseCommand(text);
 
     if (!result) {
-        showStatus("⚠️ No entendí. Intenta: 'Vendí 2 gorras' o '1 gorra a 5000'", "error");
+        showStatus("No entendí. Intenta: 'Vendí 2 gorras' o '1 gorra a 5000'", "error");
         return;
     }
 
@@ -142,7 +141,7 @@ async function registerSale(text) {
                 item = { name: product, price: currentPrice, total_sold: 0 };
                 await db.products.add(item);
                 if (currentPrice === 0) {
-                    showStatus(`⚠️ Nuevo: "${product}". Toca la tarjeta para poner precio.`, "info");
+                    showStatus(`Nuevo: "${product}". Toca la tarjeta para poner precio.`, "info");
                 }
             }
 
@@ -165,7 +164,7 @@ async function registerSale(text) {
         });
 
         // 5. Update UI
-        showStatus(`✅ Venta: ${quantity} ${product} (${formatCurrency(explicitPrice || 0)})`, "success");
+        showStatus(`Venta: ${quantity} ${product} (${formatCurrency(explicitPrice || 0)})`, "success");
         inputField.value = '';
         renderDashboard();
         renderHistory();
@@ -191,7 +190,6 @@ async function updatePrice(productName) {
             await db.products.update(productName, { price: priceVal });
 
             // 2. Update TODAY'S sales for this product to reflect new price
-            // This fixes the issue where user adds sales first, then sets price, and total remains 0.
             const now = new Date();
             now.setHours(0, 0, 0, 0);
 
@@ -209,9 +207,9 @@ async function updatePrice(productName) {
             }
         });
 
-        showStatus(`💲 Precio actualizado a ${formatCurrency(priceVal)}`, "success");
+        showStatus(`Precio actualizado a ${formatCurrency(priceVal)}`, "success");
         renderDashboard();
-        renderHistory(); // Refresh history immediately
+        renderHistory();
     }
 }
 
@@ -234,7 +232,7 @@ async function renderDashboard() {
         card.style.cursor = 'pointer';
         card.title = "Toca para editar precio";
 
-        const rank = index === 0 ? '👑' : `#${index + 1}`;
+        const rank = index === 0 ? '#' : `#${index + 1}`;
         const priceDisplay = item.price === 0 ? '<span style="color:red;font-size:0.8em;">(Sin precio)</span>' : Object(formatCurrency(item.price));
 
         card.innerHTML = `
@@ -296,7 +294,7 @@ inputField.addEventListener('keypress', (e) => {
 });
 
 resetBtn.addEventListener('click', async () => {
-    if (confirm("⚠️ ¿BORRAR TODO? Esto eliminará historial y productos.")) {
+    if (confirm("¿BORRAR TODO? Esto eliminará historial y productos.")) {
         await db.delete();
         window.location.reload();
     }
@@ -317,10 +315,10 @@ voiceBtn.onclick = () => {
     try {
         sr.start();
         voiceBtn.classList.add('active');
-        showStatus("🎤 Escuchando...", "info");
+        showStatus("Escuchando...", "info");
     } catch (e) {
         console.error(e);
-        showStatus("⚠️ Error micrófono", "error");
+        showStatus("Error micrófono", "error");
     }
 };
 
