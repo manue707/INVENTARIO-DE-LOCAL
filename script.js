@@ -92,11 +92,22 @@ function renderHistory() {
 
     [...data.transactions].reverse().forEach(t => {
         const platform = data.platforms.find(pl => pl.id == t.platformId);
-        const pName = platform ? platform.name : 'Unknown';
+        let pName = platform ? platform.name : 'Unknown';
+
+        // Clearer name for special transactions
+        if (t.type === 'compra_tullave') {
+            const tuLlave = data.platforms.find(p => p.id === 4 || p.name === 'TuLlave');
+            pName = `${pName} ➡️ ${tuLlave ? tuLlave.name : 'TuLlave'}`;
+        } else if (t.type === 'base_ingreso') {
+            pName = `📥 Base (Ingreso)`;
+        } else if (t.type === 'base_retiro') {
+            pName = `📤 Base (Retiro)`;
+        }
+
         const li = document.createElement('li');
         li.innerHTML = `
             <div style="flex: 1;">
-                <strong>${pName}</strong> - ${t.text}
+                <strong>${pName}</strong>${t.text ? ' - ' + t.text : ''}
                 <br><small>${new Date(t.date).toLocaleTimeString()}</small>
             </div>
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -107,9 +118,9 @@ function renderHistory() {
                 </div>
             </div>
         `;
-        if (t.type === 'retiro') listRetiros.appendChild(li);
-        else if (t.type === 'envio') listEnvios.appendChild(li);
-        else if (t.type === 'pago' || t.type === 'recarga' || t.type === 'recarga_tullave') listPagos.appendChild(li);
+        if (t.type === 'retiro' || t.type === 'base_retiro') listRetiros.appendChild(li);
+        else if (t.type === 'envio' || t.type === 'base_ingreso') listEnvios.appendChild(li);
+        else if (t.type === 'pago' || t.type === 'recarga' || t.type === 'recarga_tullave' || t.type === 'compra_tullave') listPagos.appendChild(li);
     });
 }
 
@@ -133,9 +144,9 @@ window.deleteTransaction = (id) => {
         if (platform) platform.balance += t.amount;
         data.cashBase -= t.amount;
     } else if (t.type === 'compra_tullave') {
-        // Original: PP -, TL +
+        // Original: Platika -, TL +
         if (platform) platform.balance += t.amount;
-        const tuLlave = data.platforms.find(p => p.name === 'TuLlave');
+        const tuLlave = data.platforms.find(p => p.id === 4 || p.name === 'TuLlave');
         if (tuLlave) tuLlave.balance -= t.amount;
     } else if (t.type === 'base_ingreso') {
         data.cashBase -= t.amount;
@@ -347,9 +358,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (platform) platform.balance -= amountVal;
                 data.cashBase += amountVal;
             } else if (type === 'compra_tullave') {
-                // Punto Pago (Selected) - , TuLlave +
+                // Platika (Selected) - , TuLlave +
                 if (platform) platform.balance -= amountVal;
-                const tuLlave = data.platforms.find(p => p.name === 'TuLlave');
+                const tuLlave = data.platforms.find(p => p.id === 4 || p.name === 'TuLlave');
                 if (tuLlave) tuLlave.balance += amountVal;
             } else if (type === 'base_ingreso') {
                 data.cashBase += amountVal;
