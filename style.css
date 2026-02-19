@@ -226,6 +226,11 @@ select:focus {
     border-color: var(--accent-color);
 }
 
+select option {
+    background-color: #1a1c2c;
+    color: white;
+}
+
 .btn-primary {
     width: 100%;
     padding: 14px;
