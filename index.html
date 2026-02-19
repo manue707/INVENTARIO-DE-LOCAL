@@ -4,76 +4,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario de Ventas </title>
-    <link rel="stylesheet" href="./css/inventory.css">
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Caja Corresponsal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-    <div class="app-container">
+    <div class="main-container">
         <header>
-            <h1>Inventario de Ventas Monarca</h1>
-            <p class="subtitle">Dímelo y yo lo anoto</p>
+            <h1>Caja Corresponsal</h1>
         </header>
 
-        <main>
-            <!-- Voice/Text Input Section -->
-            <div class="input-card">
-                <div class="input-container">
-                    <input type="text" id="venta-input" placeholder="Ej: 'Vendí 2 sudaderas'...">
-                    <button id="btn-voz" class="mic-icon" aria-label="Activar voz">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="23"></line>
-                            <line x1="8" y1="23" x2="16" y2="23"></line>
-                        </svg>
-                    </button>
-                    <button id="btn-enviar">Anotar</button>
+        <!-- Top Summary Section -->
+        <div class="summary-dashboard">
+            <div class="card base-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h3>Mi Base (Efectivo)</h3>
+                    <button class="btn-icon" id="btn-edit-base"
+                        style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">✏️</button>
                 </div>
-                <p id="status-msg" class="status-msg"></p>
+                <h1 id="cash-base">$0.00</h1>
             </div>
+            <div class="card platforms-total-card">
+                <h3>Total en Plataformas</h3>
+                <h1 id="platforms-total">$0.00</h1>
+            </div>
+            <div class="card grand-total-card">
+                <h3>Total General (Base + Plat)</h3>
+                <h1 id="grand-total">$0.00</h1>
+            </div>
+        </div>
 
-            <!-- Dashboard Section -->
-            <div class="dashboard">
-                <h2>Lo Más Vendido</h2>
-                <div id="stats-container" class="stats-grid">
-                    <div class="empty-state">No hay ventas registradas hoy.</div>
+        <!-- Platforms Grid -->
+        <div class="section-title">
+            <h3>Mis Plataformas</h3>
+            <div>
+                <button id="btn-sync-balances" class="btn-small"
+                    style="background: #f39c12; margin-right: 5px;">Sincronizar Saldos</button>
+                <button id="btn-add-platform" class="btn-small">+ Nueva</button>
+            </div>
+        </div>
+        <div id="platforms-container" class="platforms-grid">
+            <!-- Platform Cards injected here -->
+        </div>
+
+        <!-- Transaction Form -->
+        <div class="transaction-form-container">
+            <h3>Nueva Transacción</h3>
+            <form id="form">
+                <div class="form-row">
+                    <div class="form-control">
+                        <label for="trans-type">Tipo</label>
+                        <select id="trans-type">
+                            <option value="retiro">Retiro (Cliente retira)</option>
+                            <option value="envio">Envío (Cliente envía)</option>
+                            <option value="pago">Pago Recibo</option>
+                            <option value="recarga">Recarga / Paquete</option>
+                            <option value="recarga_tullave">Venta Recarga TuLlave (Descuenta saldo TuLlave)</option>
+                            <option value="compra_tullave">Compra Saldo TuLlave (Platika -> TuLlave)</option>
+                            <option value="base_ingreso">Ingreso a Base (Capital)</option>
+                            <option value="base_retiro">Retiro de Base (Gasto Personal)</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label for="platform-select">Plataforma</label>
+                        <select id="platform-select">
+                            <!-- Options injected here -->
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <!-- History / Accounts Section -->
-            <div class="history-section">
-                <h2>Cuentas del Día</h2>
-                <div id="daily-summary" class="summary-card">
-                    <h3>Total Hoy: <span id="total-revenue">$0.00</span></h3>
-                    <ul id="sales-log" class="sales-list">
-                        <!-- Sales history will go here -->
-                    </ul>
+                <div class="form-row">
+                    <div class="form-control">
+                        <label for="text">Descripción / Referencia</label>
+                        <input type="text" id="text" placeholder="Ej: Pago Facil..." autocomplete="off">
+                    </div>
+                    <div class="form-control">
+                        <label for="amount">Monto</label>
+                        <input type="number" id="amount" placeholder="0" step="50">
+                    </div>
                 </div>
-            </div>
 
-            <div class="actions">
-                <button id="btn-reset" class="btn-secondary">Borrar Todo</button>
+                <button type="submit" class="btn btn-primary">Registrar Transacción</button>
+            </form>
+        </div>
+
+        <!-- 3-Column History -->
+        <div class="history-columns">
+            <div class="col col-retiros">
+                <h3>Retiros</h3>
+                <small>(Plataforma +, Efectivo -)</small>
+                <ul id="list-retiros" class="list"></ul>
             </div>
-        </main>
+            <div class="col col-envios">
+                <h3>Envíos</h3>
+                <small>(Plataforma -, Efectivo +)</small>
+                <ul id="list-envios" class="list"></ul>
+            </div>
+            <div class="col col-pagos">
+                <h3>Pagos y Recargas</h3>
+                <small>(Plataforma -, Efectivo +)</small>
+                <ul id="list-pagos" class="list"></ul>
+            </div>
+        </div>
+
+        <button class="btn-clear" id="btn-clear">Iniciar Nuevo Día (Borrar Historial)</button>
     </div>
 
-    <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
-    <script src="./java/inventory.js"></script>
-    <script>
-        // Register PWA Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('Service Worker registrado', reg))
-                    .catch(err => console.log('Error SW:', err));
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
