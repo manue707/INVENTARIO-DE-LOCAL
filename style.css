@@ -1,15 +1,16 @@
 :root {
+    color-scheme: dark;
     --primary-color: #ffffff;
     --secondary-color: #a0a0a0;
     --accent-color: #00d2ff;
     --success-color: #00ff87;
     --danger-color: #ff4b2b;
     --warning-color: #f39c12;
-    --bg-gradient: radial-gradient(circle at top left, #1a1c2c, #4a192c);
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: blur(15px);
-    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --bg-gradient: radial-gradient(circle at top left, #1a1c2c, #2a1b3d);
+    --glass-bg: rgba(255, 255, 255, 0.12);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-blur: blur(20px);
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -226,9 +227,14 @@ select:focus {
     border-color: var(--accent-color);
 }
 
+select {
+    cursor: pointer;
+}
+
 select option {
     background-color: #1a1c2c;
     color: white;
+    padding: 10px;
 }
 
 .btn-primary {
